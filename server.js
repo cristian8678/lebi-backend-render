@@ -1,5 +1,5 @@
 const express = require("express");
-const mercadopago = require("mercadopago");
+const { MercadoPagoConfig, Preference } = require("mercadopago");
 const cors = require("cors");
 const fs = require("fs");
 
@@ -7,14 +7,16 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// 🔴 PONÉ TU ACCESS TOKEN REAL
-mercadopago.configure({
-  access_token: process.env.ACCESS_TOKEN
+// =======================
+// MERCADOPAGO V2
+// =======================
+const client = new MercadoPagoConfig({
+  accessToken: process.env.ACCESS_TOKEN
 });
+
 // =======================
 // CREAR PREFERENCIA
 // =======================
-
 app.post("/crear-preferencia", async (req, res) => {
   const carrito = req.body;
 
@@ -36,7 +38,7 @@ app.post("/crear-preferencia", async (req, res) => {
     res.json({ init_point: response.init_point });
 
   } catch (error) {
-    console.log(error);
+    console.log("❌ Error MP:", error);
     res.status(500).send("Error");
   }
 });
@@ -44,7 +46,6 @@ app.post("/crear-preferencia", async (req, res) => {
 // =======================
 // GUARDAR PEDIDOS
 // =======================
-
 app.post("/guardar-pedido", (req, res) => {
   const pedido = req.body;
 
@@ -55,7 +56,7 @@ app.post("/guardar-pedido", (req, res) => {
   }
 
   const nuevoPedido = {
-    id: Date.now(), // 🔥 ID único
+    id: Date.now(),
     ...pedido,
     estado: "pendiente",
     fecha: new Date()
@@ -69,16 +70,10 @@ app.post("/guardar-pedido", (req, res) => {
 });
 
 // =======================
-// WEBHOOK MERCADOPAGO
+// WEBHOOK
 // =======================
-
 app.post("/webhook", (req, res) => {
-  console.log("🔔 Webhook recibido:", req.body);
-
-  // 🔥 ACÁ PODÉS MEJORAR DESPUÉS:
-  // - verificar pago real
-  // - buscar pedido por ID
-  // - cambiar estado a "pagado"
+  console.log("🔔 Webhook recibido");
 
   let pedidos = [];
 
@@ -86,7 +81,6 @@ app.post("/webhook", (req, res) => {
     pedidos = JSON.parse(fs.readFileSync("pedidos.json"));
   }
 
-  // 🟡 DEMO: marca el último pedido como pagado
   if (pedidos.length > 0) {
     pedidos[pedidos.length - 1].estado = "pagado";
   }
@@ -97,7 +91,8 @@ app.post("/webhook", (req, res) => {
 });
 
 // =======================
-
+// SERVER
+// =======================
 app.listen(process.env.PORT || 3000, () => {
-  console.log("Servidor corriendo");
+  console.log("🚀 Servidor corriendo");
 });
