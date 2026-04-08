@@ -25,7 +25,7 @@ app.post("/crear-preferencia", async (req, res) => {
         unit_price: p.precio,
         quantity: p.cantidad || 1
       })),
-      notification_url: "http://localhost:3000/webhook" // 🔥 webhook
+      notification_url: "https://lebi-backend-render.onrender.com/webhook"
     };
 
     const response = await mercadopago.preferences.create(preference);
@@ -95,6 +95,6 @@ app.post("/webhook", (req, res) => {
 
 // =======================
 
-app.listen(3000, () => {
-  console.log("Servidor corriendo en http://localhost:3000");
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Servidor corriendo");
 });
