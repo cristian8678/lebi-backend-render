@@ -22,15 +22,18 @@ app.post("/crear-preferencia", async (req, res) => {
     const preference = {
       items: carrito.map(p => ({
         title: p.nombre,
-        unit_price: p.precio,
+        unit_price: Number(p.precio),
         quantity: p.cantidad || 1
-      })),
-      notification_url: "https://lebi-backend-render.onrender.com/webhook"
+      }))
     };
 
-    const response = await mercadopago.preferences.create(preference);
+    const preferenceClient = new Preference(client);
 
-    res.json({ init_point: response.body.init_point });
+    const response = await preferenceClient.create({
+      body: preference
+    });
+
+    res.json({ init_point: response.init_point });
 
   } catch (error) {
     console.log(error);
