@@ -8,10 +8,20 @@ app.use(express.json());
 app.use(cors());
 
 // =======================
-// MERCADOPAGO V2
+// MERCADOPAGO
 // =======================
 const client = new MercadoPagoConfig({
   accessToken: process.env.ACCESS_TOKEN
+});
+
+// 🔥 IMPORTANTE: URL DEL BACKEND
+const BASE_URL = "https://lebi-backend-render.onrender.com";
+
+// =======================
+// TEST SERVER
+// =======================
+app.get("/", (req, res) => {
+  res.send("Servidor funcionando 🚀");
 });
 
 // =======================
@@ -26,7 +36,8 @@ app.post("/crear-preferencia", async (req, res) => {
         title: p.nombre,
         unit_price: Number(p.precio),
         quantity: p.cantidad || 1
-      }))
+      })),
+      notification_url: `${BASE_URL}/webhook` // 🔥 webhook real
     };
 
     const preferenceClient = new Preference(client);
@@ -70,10 +81,10 @@ app.post("/guardar-pedido", (req, res) => {
 });
 
 // =======================
-// WEBHOOK
+// WEBHOOK MERCADOPAGO
 // =======================
 app.post("/webhook", (req, res) => {
-  console.log("🔔 Webhook recibido");
+  console.log("🔔 Webhook recibido:", req.body);
 
   let pedidos = [];
 
@@ -81,6 +92,7 @@ app.post("/webhook", (req, res) => {
     pedidos = JSON.parse(fs.readFileSync("pedidos.json"));
   }
 
+  // 🔥 DEMO: marca último pedido como pagado
   if (pedidos.length > 0) {
     pedidos[pedidos.length - 1].estado = "pagado";
   }
