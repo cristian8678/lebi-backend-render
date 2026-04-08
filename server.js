@@ -9,9 +9,8 @@ app.use(cors());
 
 // 🔴 PONÉ TU ACCESS TOKEN REAL
 mercadopago.configure({
-  access_token: "TU_ACCESS_TOKEN"
+  access_token: process.env.ACCESS_TOKEN
 });
-
 // =======================
 // CREAR PREFERENCIA
 // =======================
